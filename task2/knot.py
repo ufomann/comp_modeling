@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 class Segment:
     def __init__(self, begin, end):
@@ -8,11 +9,17 @@ class Segment:
 
 fig, ax = plt.subplots(nrows=2)
 fig.set_size_inches(10, 10)
-ph1 = 0
-ph2 = 0
-freq1 = 1
-freq2 = 1
-count = 1000
+
+#configuration
+config_data = dict()
+with open ('task2/config.json', 'r') as outfile:
+    config_data = json.load(outfile)
+ph1 = config_data['phase1']
+ph2 = config_data['phase2']
+freq1 = config_data['freq1']
+freq2 = config_data['freq2']
+count = config_data['count']
+
 t = np.linspace(0, 2 * np.pi / np.gcd(freq1, freq2), count)
 x = np.cos(freq1 * t + ph1)
 y = np.sin(freq2 * t + ph2)
@@ -56,7 +63,7 @@ def intersect(seg1, seg2):
 
 points = []
 for i in range(count):
-    for j in range(i + 1, count):
+    for j in range(i + 2, count):
         pt = intersect(segs[i], segs[j])
         if (pt != NO_INTERSECT):
             points.append(pt)
@@ -70,5 +77,4 @@ ax[1].set_ylabel('Probability density')
 ax[1].set_title(f'distribution of intersection for {freq1} and {freq2}')
 
 fig.tight_layout()
-plt.show()
-plt.savefig(f'inters_distr_{freq1}_and_{freq2}.png')
+fig.savefig(f'task2/inters_distr_{freq1}_and_{freq2}.png')

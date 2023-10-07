@@ -16,5 +16,5 @@ for i in range(1, 5):
         ax[i - 1][j - 1].set_ylabel('y')
         ax[i - 1][j - 1].set_title(f'{i} and {j}')
 fig.tight_layout()
-fig.savefig('fig.png')
+fig.savefig('task2/fig.png')
 fig.show()
