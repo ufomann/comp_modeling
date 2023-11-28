@@ -12,7 +12,7 @@ fig.set_size_inches(10, 10)
 
 #configuration
 config_data = dict()
-with open ('task2/config.json', 'r') as outfile:
+with open ('week2/config.json', 'r') as outfile:
     config_data = json.load(outfile)
 ph1 = config_data['phase1']
 ph2 = config_data['phase2']
@@ -77,4 +77,4 @@ ax[1].set_ylabel('Probability density')
 ax[1].set_title(f'distribution of intersection for {freq1} and {freq2}')
 
 fig.tight_layout()
-fig.savefig(f'task2/inters_distr_{freq1}_and_{freq2}.png')
+fig.savefig(f'week2/inters_distr_{freq1}_and_{freq2}.png')
