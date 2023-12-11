@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
-template<typename T, unsigned N>
+#include <type_traits>
+template<typename T, unsigned N, typename std::enable_if<std::is_arithmetic_v<T>, bool>::type = true >
 struct Data {
     template<typename ...Args>
     Data(Args... args){
@@ -42,13 +43,13 @@ struct Data {
         ans += rhs;
         return ans;
     }
-    Data & operator*= (const double& rhs){
+    Data & operator*= (const double rhs){
         for (size_t i = 0; i < N; i++){
             data_[i] *= rhs;
         }
         return *this;
     }
-    Data operator * (const double& rhs) const {
+    Data operator * (const double rhs) const {
         Data ans(*this);
         ans *= rhs;
         return ans;
@@ -77,11 +78,13 @@ struct Data {
     T operator[] (int n) const {
         return data_[n];
     }
+#ifdef Debug
     void print() {
         for (size_t i = 0; i < N; i++){
             std::cout << data_[i] << " \n"[i == N - 1];
         }
     }
+#endif
     unsigned size() const {
         return N;
     }

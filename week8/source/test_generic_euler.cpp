@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 using json = nlohmann::json;
+//lib config
 
 struct Harm_force{
     Harm_force() = default;
@@ -76,20 +77,22 @@ private:
 };
 
 void run(std::ofstream& fout, std::string& data_path, double begin_time, double end_time, double time_div, 
-        const Data<double, 3> &state, const Vel_function<double, 3> * vel_func, const Method<3, double, double>* meth, bool log) {
+        const Data<double, 3> &state, const Vel_function<double, 3> * vel_func, const Method<3, double, double>* meth) {
     fout.open(data_path);
     double curr_time = begin_time;
     Data<double, 3> curr_state = state;
     Data<double, 3> new_state;
     fout << "crd,vel,time\n";
     for (;curr_time < end_time; curr_time+=time_div){
-        if (log)
+        if ((curr_time >= log_begin) && (curr_time <= log_end))
             curr_state.log(fout, ',');
         new_state = meth->operator()(curr_state, vel_func, time_div);
         curr_state = new_state;
     }
     fout.close();
 }
+
+double log_begin, log_end;
 
 int main(int argc, char * argv[]){
     std::string config_path = argv[1];
@@ -103,7 +106,7 @@ int main(int argc, char * argv[]){
     std::string type = data["type"];
     std::string outfile = data["outfile"];
     double gamma = data["gamma"];
-    int log = data["log"];
+    log_begin = data["log_begin"]; log_end = data["log_end"];
 
     //force parse
     int force_cnt = data["force_cnt"];
@@ -122,7 +125,7 @@ int main(int argc, char * argv[]){
     std::unique_ptr<Vel_function<double, 3>> func;
 
     if (type == "phys")
-        func = std::unique_ptr<Vel_function<double, 3>> (new Vel_func_phys{omega2});
+        func = std::make_unique<Vel_func_phys> (omega2);
     else if (type == "mat")
         func = std::unique_ptr<Vel_function<double, 3>> (new Vel_func{omega2});
     else if (type == "fric")
@@ -146,7 +149,7 @@ int main(int argc, char * argv[]){
     }
 
     // auto start = std::chrono::system_clock::now();
-    run(fout, outfile, time_begin, time_end, time_div, state, func.get(), meth.get(), log);
+    run(fout, outfile, time_begin, time_end, time_div, state, func.get(), meth.get());
     // auto finish = std::chrono::system_clock::now();
     // auto time = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start);
     // std::cout << time.count() << '\n';
