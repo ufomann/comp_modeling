@@ -5,10 +5,11 @@
 #include <array>
 #include <iostream>
 #include <type_traits>
-template<typename T, unsigned N, typename std::enable_if<std::is_arithmetic_v<T>, bool>::type = true >
+template<typename T, unsigned N, typename std::enable_if<std::is_arithmetic_v<T>, bool>::type = true>
 struct Data {
     template<typename ...Args>
     Data(Args... args){
+        //TODO try catch
         static_assert(sizeof...(args) == N);
         unsigned idx = 0;
         for (auto x_in : std::initializer_list<T>{args...}){
@@ -49,6 +50,7 @@ struct Data {
         }
         return *this;
     }
+    //TODO multiply on the other side (friend function outside class 5 * vec = vec * 5)
     Data operator * (const double rhs) const {
         Data ans(*this);
         ans *= rhs;
@@ -78,7 +80,7 @@ struct Data {
     T operator[] (int n) const {
         return data_[n];
     }
-#ifdef Debug
+#ifdef DEBUG
     void print() {
         for (size_t i = 0; i < N; i++){
             std::cout << data_[i] << " \n"[i == N - 1];

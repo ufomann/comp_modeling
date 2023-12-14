@@ -13,9 +13,20 @@ using json = nlohmann::json;
 
 struct Harm_force{
     Harm_force() = default;
+    //TODO rule of five 
     Harm_force(double ampl, double omega) : ampl(ampl), omega(omega) {};
     double ampl;
     double omega;
+};
+
+class Type_discrepancy: public std::exception {
+public:
+    Type_discrepancy(std::string const & msg): message(msg){}
+    const char* what() const noexcept override {
+        return message.c_str();
+    }
+private:
+    std::string message;
 };
 
 class Config {
@@ -23,7 +34,8 @@ public:
     Config(std::string config_path) {
         std::ifstream f(config_path);
         json data = json::parse(f);
-        
+        //TODO type verification
+        //typeid(obj).name() == "double"
         state0 = Data<double, 3>(data["crd_0"], data["vel_0"], data["time_begin"]);
         gamma = data["gamma"], omega2 = data["omega2"];
         time_begin = data["time_begin"], time_end = data["time_end"], time_div = data["time_div"];
@@ -91,6 +103,7 @@ public:
 
 struct Vel_func_driven : Vel_function<double, 3> { //state[0] - crd, state[1] - vel, state[2] - time
     using Iterator = std::vector<Harm_force>::const_iterator;
+    //TODO pointer to force function
     Vel_func_driven(const Config & config) : omega2(config.get_omega2()), gamma(config.get_gamma()), 
         begin(config.get_forces().first), end(config.get_forces().second), time_div(config.get_time_div()) {};
     Data <double, 3> operator() (const Data<double, 3> & state) const override {
@@ -150,7 +163,7 @@ private:
 };
 
 void run(std::ofstream& fout, const Vel_function<double, 3> * vel_func, const Method<3, double, double>* meth, const Config & config) {
-
+//TODO reference to ofstream. Do we need it?
     std::string data_path = config.get_outfile();
     double begin_time = config.get_time_begin();
     Data<double, 3> state = config.get_state();
@@ -173,6 +186,7 @@ void run(std::ofstream& fout, const Vel_function<double, 3> * vel_func, const Me
 }
 
 std::unique_ptr<Method<3, double, double>> createMethod (const std::string& type){
+    //TODO try catch
     std::unique_ptr<Method<3, double, double>> method;
     if (type == "euler")
         method = std::make_unique<Generic_euler<3, double, double> > ();
@@ -206,7 +220,13 @@ int main(int argc, char * argv[]){
     std::string config_path = argv[1];
     std::ofstream fout;
 
-    Config config(config_path);
+    try {
+        Config config(config_path);
+    }
+    catch(Type_discrepancy const &err) {
+        std::cerr << err.what() << std::endl; 
+    }
+    
 
     std::unique_ptr<Method<3, double, double>> method = createMethod(config.get_method());
     std::unique_ptr<Vel_function<double, 3>> func = createVelFunction(config.get_type(), config);
