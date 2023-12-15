@@ -50,11 +50,18 @@ struct Data {
         }
         return *this;
     }
-    //TODO multiply on the other side (friend function outside class 5 * vec = vec * 5)
+    #ifdef MUL
     Data operator * (const double rhs) const {
         Data ans(*this);
         ans *= rhs;
         return ans;
+    }
+    #endif
+    friend Data operator*(Data ans, const double rhs) {
+        return ans *= rhs;
+    }
+    friend Data operator*(const double rhs, Data ans) {
+        return ans *= rhs;
     }
     Data operator-(){
         Data ans(*this);
@@ -101,3 +108,4 @@ struct Data {
 private:
     std::array<T, N> data_; 
 };
+

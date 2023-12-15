@@ -1,1 +1,1 @@
-{"vel_0": 0, "crd_0": 10, "time_div": 0.01, "time_begin": 0, "time_end": 2000, "omega2": 1, "gamma": 0.01, "dump": 1, "outfile": "data/data.csv", "meth": "euler", "type": "driven", "force_cnt": 1, "force_amp": [1], "force_omega": [0.9]}
+{"vel_0": 0.0, "crd_0": 10.0, "time_div": 0.01, "time_begin": 0, "time_end": 1000, "omega2": 1, "gamma": 0.01, "dump": 1, "outfile": "data/data.csv", "meth": "euler", "type": "driven", "force_cnt": 1, "force_amp": [1], "force_omega": [0.9]}
