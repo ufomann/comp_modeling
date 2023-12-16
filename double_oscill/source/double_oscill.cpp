@@ -16,6 +16,9 @@ public:
     Config(std::string config_path){
         std::ifstream f(config_path);
         json data = json::parse(f);
+        m = data["m"];
+        amp = data["amp"];
+        omega = data["omega"];
         m1 = data["m1"];
         m2 = data["m2"];
         l1 = data["l1"];
@@ -37,7 +40,7 @@ public:
     Config & operator=(const Config & rhs) = delete;
     Config (const Config & rhs) = delete;
 public:
-    double m1, m2, l1, l2, g;
+    double m1, m2, l1, l2, g, m, omega, amp;
     double time_begin, time_end, time_div;
     std::string method;
     std::string type;
@@ -69,6 +72,36 @@ struct Vel_func_phys : Vel_function<double, 5> {
     }
 private:
     double m1, m2, l1, l2, g;
+};
+
+struct Vel_func_Kapitza : Vel_function<double, 5> {
+    Vel_func_Kapitza(const Config & config) {
+        m = config.m;
+        l1 = config.l1;
+        l2 = config.l2;
+        g = config.g;
+        amp = config.amp;
+        omega = config.omega;
+    }
+    
+    Data<double, 5> operator() (const Data<double, 5> & state) const override {
+        double time = state[4];
+        double phi = amp * std::cos(omega * time);
+        double dphi = -amp * omega * std::sin(omega * time);
+        double ddphi = -amp * omega * omega * std::cos(omega * time);
+        double psi = state[1];
+        double dpsi = state[3];
+        Data <double, 5> velocity;
+        velocity[0] = dphi;
+        velocity[1] = dpsi;
+        velocity[2] = ddphi;
+        velocity[3] = 1 / l2 * (g * std::sin(psi) - dphi * dphi * l1 * std::cos(phi - psi) - ddphi * l1 * std::sin(phi - psi));
+        velocity[4] = 1;
+        return velocity;
+    }
+
+private: 
+    double m, l1, l2, g, omega, amp;
 };
 
 void run(std::ofstream& fout, Config & config, const Vel_function<double, 5> * vel_func, const Method<5, double, double>* meth) {
@@ -106,6 +139,8 @@ int main(int argc, char * argv[]){
     std::string type = config.type;
     if (type == "phys")
         func = std::make_unique<Vel_func_phys> (config);
+    else if (type == "kapitza")
+        func = std::make_unique<Vel_func_Kapitza> (config);
     else {
         std::cerr << "incorrect type\n";
         return -1;
