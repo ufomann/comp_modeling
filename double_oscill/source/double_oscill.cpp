@@ -87,8 +87,8 @@ struct Vel_func_Kapitza : Vel_function<double, 5> {
     Data<double, 5> operator() (const Data<double, 5> & state) const override {
         double time = state[4];
         double phi = amp * std::cos(omega * time);
-        double dphi = -amp * omega * std::sin(omega * time);
-        double ddphi = -amp * omega * omega * std::cos(omega * time);
+        double dphi = - amp * omega * std::sin(omega * time);
+        double ddphi = - amp * omega * omega * std::cos(omega * time);
         double psi = state[1];
         double dpsi = state[3];
         Data <double, 5> velocity;
