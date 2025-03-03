@@ -35,6 +35,7 @@ double symbol_counter(const std::vector<int> &seq){
 
 struct Action{
     virtual void operator() (const std::vector<int> & seq) const = 0;
+    virtual ~Action() = default;
 };
 
 struct Header : Action {
